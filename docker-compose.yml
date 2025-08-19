@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=jasper_reports_db
+      - JAVA_HOME=/opt/java/openjdk
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+      - ./reports:/app/reports
+      - ./test:/app/test
+    depends_on:
+      - postgres
+    command: npm run start:dev
+
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=jasper_reports_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    depends_on:
+      - postgres
+
+  jasper:
+    image: openjdk:17
+    volumes:
+      - ./uploads:/app/uploads
+      - ./jasper-engine:/app/jasper-engine
+
+volumes:
+  postgres_data:
