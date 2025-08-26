@@ -1,10 +1,11 @@
-import { Controller, Post, UseInterceptors, UploadedFile, Body, Param, Get, Res, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Controller, Post, UseInterceptors, UploadedFile, Body, Param, Get, Res, UsePipes, ValidationPipe, NotFoundException, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ReportsService } from '../use-cases/upload-report.use-case';
 import { UploadReportDto } from '../dtos/upload-report.dto';
+import { ReportDto } from '../dtos/report.dto';
 import { JasperService } from '../../../shared/infrastructure/jasper/jasper.service';
 import { Response } from 'express';
 
@@ -17,11 +18,28 @@ export class ReportsController {
   ) {}
 
   @Get()
-  async listReports() {
+  @ApiOperation({ summary: 'List all reports' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'List of all reports', type: [ReportDto] })
+  async listReports(): Promise<ReportDto[]> {
     return this.reportsService.listReports();
   }
 
   @Post('upload')
+  @ApiOperation({ summary: 'Upload a report file' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'The report file to upload (.jrxml or .jasper)',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Report uploaded successfully', type: ReportDto })
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
       destination: './uploads',
@@ -38,16 +56,25 @@ export class ReportsController {
     },
   }))
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
-  async uploadReport(@UploadedFile() file: Express.Multer.File, @Body() uploadReportDto: UploadReportDto): Promise<UploadReportDto> {
-    // Optionally merge file and DTO data
-    const saved = await this.reportsService.saveReportFile({ ...uploadReportDto, ...file });
-    return {
-      filename: saved.filename,
-      originalname: saved.originalname,
-    };
+  async uploadReport(@UploadedFile() file: Express.Multer.File): Promise<ReportDto> {
+    return this.reportsService.saveReportFile(file);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a report by ID' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Report found', type: ReportDto })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Report not found' })
+  async getReport(@Param('id') id: number): Promise<ReportDto> {
+    const report = await this.reportsService.findById(id);
+    if (!report) {
+      throw new NotFoundException(`Report with ID ${id} not found`);
+    }
+    return report;
   }
 
   @Post('process/:filename')
+  @ApiOperation({ summary: 'Process a report and generate PDF' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'PDF generated successfully' })
   async processReport(@Param('filename') filename: string, @Body() params: any, @Res() res: Response) {
     const reportPath = `./uploads/${filename}`;
     const outputPath = `./uploads/${filename}.pdf`;

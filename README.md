@@ -10,23 +10,68 @@ jasper-reports-nestjs/
 │   ├── app.module.ts           # Root module
 │   ├── main.ts                 # Application entry point
 │   ├── products/               # Products feature module
-│   │   ├── application/        # Controllers, DTOs
-│   │   ├── domain/             # Domain entities
+│   │   ├── application/        # Controllers, DTOs, use-cases
+│   │   │   ├── controllers/    # API controllers
+│   │   │   ├── dtos/           # Data Transfer Objects
+│   │   │   └── use-cases/      # Application services
+│   │   ├── domain/             # Domain entities and ports
+│   │   │   ├── product.entity.ts          # Domain entity
+│   │   │   └── product.repository.port.ts # Repository interface
 │   │   └── infrastructure/     # ORM entities, repositories
+│   │       ├── entities/       # TypeORM entities
+│   │       └── repositories/   # Repository implementations
 │   ├── reports/                # Reports feature module
 │   │   ├── application/        # Controllers, DTOs, use-cases
-│   │   ├── domain/             # Domain entities
+│   │   │   ├── controllers/    # API controllers
+│   │   │   ├── dtos/           # Data Transfer Objects
+│   │   │   └── use-cases/      # Application services
+│   │   ├── domain/             # Domain entities and ports
+│   │   │   ├── report.entity.ts          # Domain entity
+│   │   │   └── report.repository.port.ts # Repository interface
 │   │   └── infrastructure/     # ORM entities, repositories
+│   │       ├── entities/       # TypeORM entities
+│   │       └── repositories/   # Repository implementations
 │   └── shared/                 # Shared infrastructure (DB, Jasper, Storage)
 │       └── infrastructure/
 │           ├── database/       # TypeORM config, seeds
 │           ├── jasper/         # Jasper service stub
 │           └── storage/        # File storage service
+├── docs/                       # Documentation
+│   ├── coding-style-guide.md   # Coding standards
+│   ├── extended-llm-instructions.md # Additional instructions
+│   └── architecture-diagram.md # Architecture diagrams
 ├── Dockerfile                  # Production Docker build
 ├── Dockerfile.dev              # Development Docker build (with Jasper libs)
 ├── docker-compose.yml          # Multi-service orchestration
 ├── package.json                # NPM scripts and dependencies
 ```
+
+## Hexagonal Architecture
+
+This project follows the Hexagonal Architecture (Ports and Adapters) pattern, which provides several benefits:
+
+1. **Separation of Concerns**: The business logic is isolated from external concerns like databases and UI.
+2. **Testability**: Domain logic can be tested without infrastructure dependencies.
+3. **Flexibility**: Infrastructure implementations can be swapped without affecting the domain.
+
+The architecture is organized into three main layers:
+
+### Domain Layer
+- Contains business entities and business logic
+- Defines interfaces (ports) that the domain requires from the outside world
+- Has no dependencies on other layers
+
+### Application Layer
+- Contains use cases that orchestrate the domain entities
+- Translates between the domain and the outside world using DTOs
+- Depends only on the domain layer
+
+### Infrastructure Layer
+- Contains implementations of the interfaces defined by the domain
+- Includes controllers, repositories, ORM entities, and external services
+- Adapts external concerns to the needs of the domain
+
+For detailed architecture diagrams, see [Architecture Diagrams](./docs/architecture-diagram.md).
 
 ## Dependency Installation
 
@@ -49,129 +94,39 @@ npm install
    ```sh
    npm run start:dev
    ```
-3. (Optional) Seed the database:
+
+### Docker Development
+1. Build and start the containers:
    ```sh
-   npm run seed
+   docker-compose up -d
    ```
-4. Access Swagger UI: [http://localhost:3000/api](http://localhost:3000/api)
+2. The API will be available at http://localhost:3000
 
-### Dockerized (Recommended)
-1. Build and start all services:
-   ```sh
-   docker compose up -d --build
-   ```
-2. (Optional) Seed the database:
-   ```sh
-   docker compose exec app npm run seed
-   ```
-3. Access:
-   - API: http://localhost:3000
-   - Swagger: http://localhost:3000/api
-   - pgAdmin: http://localhost:5050 (admin@admin.com / admin)
+## API Endpoints
 
-## Docker Files Explained
+### Products
+- `GET /products` - List all products
+- `GET /products/:id` - Get a product by ID
+- `POST /products` - Create a new product
+- `DELETE /products/:id` - Delete a product
 
-- **Dockerfile**: Multi-stage build for production. Installs dependencies, builds the app, and runs it with Node.js. Also includes a Java stage for JasperReports integration.
-- **Dockerfile.dev**: Development image. Installs Node.js, Java, and downloads JasperReports libraries for local testing and development.
-- **docker-compose.yml**: Orchestrates the app, PostgreSQL, Jasper engine, and pgAdmin. Sets up volumes for persistence and mounts source code for live reload in development.
-
-## Project Architecture
-
-- **Hexagonal Architecture**: Separates domain logic from infrastructure and application layers. Promotes testability and maintainability.
-- **Vertical Slice Modularity**: Each feature (products, reports) is self-contained with its own controllers, DTOs, entities, and repositories.
-- **TypeORM**: Used for database access and migrations.
-- **Swagger**: Auto-generates API documentation from code and DTOs.
-
-## Module Details
-
-### Products Module
-- **Purpose**: CRUD operations for products (name, price, description).
-- **Entry Point**: `src/products/application/controllers/products.controller.ts`
-- **Workflow**:
-  - REST endpoints for listing and creating products.
-  - Input validated with DTOs and class-validator.
-  - Data persisted to PostgreSQL via TypeORM.
-  - Seeder script (`npm run seed`) populates >1000 demo products.
-
-### Reports Module
-- **Purpose**: Upload, store, and (planned) process JasperReports files (`.jrxml`, `.jasper`).
-- **Entry Point**: `src/reports/application/controllers/reports.controller.ts`
-- **Workflow**:
-  - REST endpoint for uploading report files.
-  - Files stored in `/uploads` directory.
-  - (Planned) Processing via Jasper engine container.
-  - Input validated with DTOs and class-validator.
-
-### Shared Infrastructure
-- **Database**: TypeORM config and seeding logic (`src/shared/infrastructure/database/`).
-- **Jasper**: Service stub for future JasperReports processing (`src/shared/infrastructure/jasper/`).
-- **Storage**: Service for file management (`src/shared/infrastructure/storage/`).
-
-## Jasper Module & Engine
-
-- **Jasper Module Location:** `src/shared/infrastructure/jasper/`
-- **Service:** `jasper.service.ts` (stub for future JasperReports integration)
-- **Purpose:** Intended to provide methods for interacting with the JasperReports Java engine, such as compiling `.jrxml` files, filling reports with data, and exporting to PDF or other formats.
-- **Engine Integration:**
-  - The Docker setup includes a `jasper` service (see `docker-compose.yml`) that runs an OpenJDK container, ready for future integration with the JasperReports engine.
-  - The development Dockerfile (`Dockerfile.dev`) downloads JasperReports JARs and dependencies, preparing the environment for Java-based report processing.
-- **Current State:**
-  - The NestJS backend currently allows uploading and storing `.jrxml` and `.jasper` files.
-  - The actual report processing (compiling, filling, exporting) is planned for future implementation, leveraging the Java engine container and the service stub.
-- **Planned Workflow:**
-  1. User uploads a report file via the API.
-  2. The backend stores the file and (in the future) will call the Jasper service to process it using the Java engine.
-  3. The processed output (e.g., PDF) will be returned or stored for download.
-
-
-## API Documentation
-
-- Swagger UI: [http://localhost:3000/api](http://localhost:3000/api)
-- Endpoints grouped by module (products, reports)
-
----
-
-## Functionalities
-
-- **Products Module:** Full CRUD for products (name, price, description) with DTO validation, TypeORM, and PostgreSQL. Includes a seeder for >1000 demo records.
-- **Reports Module:** Upload and store `.jrxml` and `.jasper` files, with endpoints for upload and (via JasperService) PDF processing. Files are validated and stored in `/uploads`.
-- **Jasper Integration:** Java-based JasperReports engine is integrated via Docker and a CLI, allowing real report processing from the API.
-- **Swagger:** Modular, grouped API docs at `/api`.
-- **Hexagonal Architecture:** Each feature is a vertical slice with its own controllers, DTOs, entities, and repositories. Shared infrastructure is cleanly separated.
-
----
+### Reports
+- `GET /reports` - List all reports
+- `GET /reports/:id` - Get a report by ID
+- `POST /reports/upload` - Upload a report file
+- `POST /reports/process/:filename` - Process a report and generate PDF
 
 ## Testing
 
-### Types of Tests
-
-- **Unit Tests:** For all repositories, services, and controllers using `@nestjs/testing` and provider overrides. All logic is type-safe and fully covered.
-- **E2E Tests:** For all endpoints and workflows, using NestJS best practices (`supertest` default import, `INestApplication`, and real HTTP requests).
-- **Coverage:** All tests run in Docker and CI. Coverage is measured with Jest.
-
-### How to Run Tests
-
-**Unit & E2E (all):**
+Run unit tests:
 ```sh
-docker compose run --rm app npm test -- --coverage --config ./jest.config.js
+npm run test
 ```
 
-**E2E only (NestJS idiomatic):**
+Run e2e tests:
 ```sh
-docker compose run --rm app npm run test:e2e
+npm run test:e2e
 ```
-
-### Coverage
-
-- **Current overall coverage:**  
-   - **Statements:** ~80%
-   - **Branches:** ~23%
-   - **Functions:** ~78%
-   - **Lines:** ~77%
-- **All core modules and endpoints are covered by both unit and E2E tests.**
-- **Coverage is measured in Docker, so results reflect real deployment/test environments.**
-
----
 
 ## License
 

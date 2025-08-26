@@ -10,7 +10,16 @@ import { StorageService } from '../shared/infrastructure/storage/storage.service
 @Module({
   imports: [TypeOrmModule.forFeature([ReportOrmEntity])],
   controllers: [ReportsController],
-  providers: [ReportsService, ReportRepository, JasperService, StorageService],
+  providers: [
+    ReportsService,
+    {
+      provide: 'ReportRepositoryPort',
+      useClass: ReportRepository,
+    },
+    ReportRepository,
+    JasperService,
+    StorageService,
+  ],
   exports: [ReportsService],
 })
 export class ReportsModule {}
