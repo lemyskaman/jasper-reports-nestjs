@@ -1,9 +1,4 @@
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-CMD ["npm", "run", "start:dev"]# Development Dockerfile with JasperReports dependencies
+# Development Dockerfile with JasperReports dependencies
 FROM openjdk:17-slim
 
 # Install Node.js and development tools
@@ -50,8 +45,8 @@ ENV JASPER_LIBS_PATH=/app/jasperreports-libs
 # Copy source code
 COPY . .
 
-# Expose port
-EXPOSE 3000
+# Expose ports (API and Debug)
+EXPOSE 3000 9229
 
-# Development command
-CMD ["npm", "run", "start:dev"]
+# Command to run the application in debug mode
+CMD ["npm", "run", "start:debug"]

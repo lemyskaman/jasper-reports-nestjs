@@ -3,9 +3,10 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
+      - "9229:9229"
     environment:
       - NODE_ENV=development
       - DATABASE_HOST=postgres
@@ -21,7 +22,7 @@ services:
       - ./test:/app/test
     depends_on:
       - postgres
-    command: npm run start:dev
+    command: npm run start:debug
 
   postgres:
     image: postgres:15-alpine

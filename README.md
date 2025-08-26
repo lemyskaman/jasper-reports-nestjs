@@ -102,6 +102,28 @@ npm install
    ```
 2. The API will be available at http://localhost:3000
 
+### Debugging with VS Code
+
+1. Make sure you have the VS Code setup:
+   - The project includes a `.vscode/launch.json` configuration file
+   - This enables debugging both in Docker and locally
+
+2. To debug the application running in Docker:
+   - Start the application using Docker Compose:
+     ```sh
+     docker-compose up -d
+     ```
+   - In VS Code, go to the Run and Debug panel (Ctrl+Shift+D)
+   - Select "Debug NestJS in Docker" from the dropdown
+   - Press F5 or click the green play button
+   - VS Code will attach to the Node.js process running in the Docker container
+   - You can now set breakpoints in your code and debug as usual
+
+3. To debug locally (without Docker):
+   - Select "Debug NestJS (Local)" from the dropdown
+   - Press F5 or click the green play button
+   - This will start the application in debug mode locally
+
 ## API Endpoints
 
 ### Products
