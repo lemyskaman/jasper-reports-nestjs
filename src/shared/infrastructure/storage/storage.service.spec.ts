@@ -18,7 +18,7 @@ describe('StorageService', () => {
           provide: ConfigService,
           useValue: {
             get: jest.fn((key, defaultValue) => {
-              if (key === 'UPLOAD_DIR') return 'uploads';
+              if (key === 'UPLOAD_DIR') return path.join(process.cwd(), 'uploads');
               return defaultValue;
             }),
           },

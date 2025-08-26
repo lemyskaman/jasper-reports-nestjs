@@ -24,7 +24,6 @@ RUN wget https://repo1.maven.org/maven2/commons-beanutils/commons-beanutils/1.9.
 RUN wget https://repo1.maven.org/maven2/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar
 RUN wget https://repo1.maven.org/maven2/commons-digester/commons-digester/2.1/commons-digester-2.1.jar
 RUN wget https://repo1.maven.org/maven2/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar
-RUN wget https://repo1.maven.org/maven2/com/lowagie/itext/2.1.7.js8/itext-2.1.7.js8.jar
 
 WORKDIR /app
 

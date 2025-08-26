@@ -46,8 +46,8 @@ export class Product {
       throw new Error('Product name cannot be empty');
     }
 
-    if (this._price < 0) {
-      throw new Error('Product price cannot be negative');
+    if (this._price <= 0) {
+      throw new Error('Product price must be greater than zero');
     }
   }
 

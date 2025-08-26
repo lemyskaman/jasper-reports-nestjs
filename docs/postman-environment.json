@@ -1,0 +1,50 @@
+{
+  "id": "jasper-reports-nestjs-local-env",
+  "name": "Jasper Reports NestJS Local",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "enabled": true
+    },
+    {
+      "key": "filename",
+      "value": "sample.jasper",
+      "enabled": true
+    },
+    {
+      "key": "UPLOAD_DIR",
+      "value": "./uploads",
+      "enabled": true
+    },
+    {
+      "key": "DB_HOST",
+      "value": "localhost",
+      "enabled": true
+    },
+    {
+      "key": "DB_PORT",
+      "value": "5432",
+      "enabled": true
+    },
+    {
+      "key": "DB_USER",
+      "value": "postgres",
+      "enabled": true
+    },
+    {
+      "key": "DB_PASSWORD",
+      "value": "postgres",
+      "enabled": true
+    },
+    {
+      "key": "DB_NAME",
+      "value": "jasper_reports",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2025-08-26T10:55:00.000Z",
+  "_postman_exported_using": "Postman/10.0.0"
+}
+

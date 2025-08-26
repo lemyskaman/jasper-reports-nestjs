@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ReportRepository } from '../src/reports/infrastructure/repositories/report.repository';
 import { ReportOrmEntity } from '../src/reports/infrastructure/entities/report.orm-entity';
 import { Repository } from 'typeorm';
+import { Report } from '../src/reports/domain/report.entity';
 
 describe('ReportRepository (NestJS)', () => {
   let repo: ReportRepository;
@@ -31,18 +32,24 @@ describe('ReportRepository (NestJS)', () => {
     ];
     dbMock.find!.mockResolvedValue(reports);
     const result = await repo.findAll();
-    expect(result).toBe(reports);
+    expect(result[0]).toMatchObject({ filename: 'a.jasper', originalname: 'a.jrxml' });
+    expect(result[1]).toMatchObject({ filename: 'b.jasper', originalname: 'b.jrxml' });
     expect(dbMock.find).toHaveBeenCalled();
   });
 
   it('should save a report', async () => {
-    const report: Partial<ReportOrmEntity> = {
+    const report = new Report({
       filename: 'file.jasper',
       originalname: 'file.jrxml',
+    });
+    const ormEntity = {
+      filename: report.filename,
+      originalname: report.originalname,
+      uploadedAt: report.uploadedAt,
     };
-    dbMock.save!.mockResolvedValue(report);
+    dbMock.save!.mockResolvedValue(ormEntity);
     const result = await repo.save(report);
-    expect(result).toBe(report);
-    expect(dbMock.save).toHaveBeenCalledWith(report);
+    expect(result).toMatchObject({ filename: 'file.jasper', originalname: 'file.jrxml' });
+    expect(dbMock.save).toHaveBeenCalledWith(expect.objectContaining(ormEntity));
   });
 });

@@ -1,0 +1,91 @@
+{
+  "info": {
+    "name": "Jasper Reports NestJS API",
+    "description": "Postman collection for local testing of all endpoints in the jasper-reports-nestjs project.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Get All Products",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": ["{{baseUrl}}"],
+          "path": ["products"]
+        }
+      }
+    },
+    {
+      "name": "Create Product",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Sample Product\",\n  \"price\": 99.99,\n  \"description\": \"A test product\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": ["{{baseUrl}}"],
+          "path": ["products"]
+        }
+      }
+    },
+    {
+      "name": "Get All Reports",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/reports",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports"]
+        }
+      }
+    },
+    {
+      "name": "Upload Report",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "multipart/form-data" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": "" }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/reports/upload",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", "upload"]
+        }
+      }
+    },
+    {
+      "name": "Process Report (Generate PDF)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"param1\": \"value1\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/reports/process/{{filename}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", "process", "{{filename}}"]
+        }
+      }
+    }
+  ]
+}
+

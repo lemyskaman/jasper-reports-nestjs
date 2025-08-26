@@ -1,0 +1,13 @@
+# Application
+NODE_ENV=development
+PORT=3000
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=password
+DB_NAME=jasper_reports_db
+
+# Java
+JAVA_HOME=/opt/java/openjdk

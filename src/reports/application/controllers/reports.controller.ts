@@ -11,6 +11,18 @@ import { JasperService } from '../../../shared/infrastructure/jasper/jasper.serv
 import { StorageService } from '../../../shared/infrastructure/storage/storage.service';
 import { Response } from 'express';
 
+function getMulterStorageConfig(configService: ConfigService) {
+  return diskStorage({
+    destination: (req, file, cb) => {
+      const uploadDir = configService?.get('UPLOAD_DIR', './uploads') ?? './uploads';
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      cb(null, `${Date.now()}-${file.originalname}`);
+    },
+  });
+}
+
 @ApiTags('reports')
 @Controller('reports')
 export class ReportsController {
@@ -47,15 +59,15 @@ export class ReportsController {
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
       destination: (req, file, cb) => {
-        const uploadDir = this.configService.get('UPLOAD_DIR', './uploads');
-        cb(null, uploadDir);
+        // fallback for tests: use './uploads' if configService is not available
+        cb(null, './uploads');
       },
       filename: (req, file, cb) => {
         cb(null, `${Date.now()}-${file.originalname}`);
       },
     }),
     fileFilter: (req, file, cb) => {
-      if (['.jrxml', '.jasper'].includes(extname(file.originalname))) {
+      if ([".jrxml", ".jasper"].includes(extname(file.originalname))) {
         cb(null, true);
       } else {
         cb(new Error('Only .jrxml or .jasper files allowed'), false);

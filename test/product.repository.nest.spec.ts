@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ProductRepository } from '../src/products/infrastructure/repositories/product.repository';
 import { ProductOrmEntity } from '../src/products/infrastructure/entities/product.orm-entity';
 import { Repository } from 'typeorm';
+import { Product } from '../src/products/domain/product.entity';
 
 describe('ProductRepository (NestJS)', () => {
   let repo: ProductRepository;
@@ -26,15 +27,20 @@ describe('ProductRepository (NestJS)', () => {
   });
 
   it('should save a product', async () => {
-    const product: Partial<ProductOrmEntity> = {
+    const product = new Product({
       name: 'Test',
       price: 10.5,
       description: 'desc',
+    });
+    const ormEntity = {
+      name: product.name,
+      price: product.price,
+      description: product.description,
     };
-    dbMock.save!.mockResolvedValue(product);
+    dbMock.save!.mockResolvedValue(ormEntity);
     const result = await repo.save(product);
-    expect(result).toBe(product);
-    expect(dbMock.save).toHaveBeenCalledWith(product);
+    expect(result).toMatchObject({ name: 'Test', price: 10.5, description: 'desc' });
+    expect(dbMock.save).toHaveBeenCalledWith(expect.objectContaining(ormEntity));
   });
 
   it('should find all products', async () => {
@@ -44,7 +50,8 @@ describe('ProductRepository (NestJS)', () => {
     ];
     dbMock.find!.mockResolvedValue(products);
     const result = await repo.findAll();
-    expect(result).toBe(products);
+    expect(result[0]).toMatchObject({ name: 'A', price: 1, description: 'desc' });
+    expect(result[1]).toMatchObject({ name: 'B', price: 2, description: 'desc2' });
     expect(dbMock.find).toHaveBeenCalled();
   });
 });

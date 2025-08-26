@@ -9,10 +9,10 @@ export class ProductDto {
   id?: number;
 
   @ApiProperty({ description: 'The name of the product' })
-  name: string;
+  name!: string;
 
   @ApiProperty({ description: 'The price of the product' })
-  price: number;
+  price!: number;
 
   @ApiProperty({ description: 'The description of the product', required: false })
   description?: string;

@@ -9,11 +9,11 @@ export class ReportDto {
   id?: number;
 
   @ApiProperty({ description: 'The filename of the stored report' })
-  filename: string;
+  filename!: string;
 
   @ApiProperty({ description: 'The original filename of the report' })
-  originalname: string;
+  originalname!: string;
 
   @ApiProperty({ description: 'The date when the report was uploaded' })
-  uploadedAt: Date;
+  uploadedAt!: Date;
 }

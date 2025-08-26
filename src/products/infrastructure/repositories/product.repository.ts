@@ -53,8 +53,8 @@ export class ProductRepository implements ProductRepositoryPort {
     
     ormEntity.name = domainEntity.name;
     ormEntity.price = domainEntity.price;
-    ormEntity.description = domainEntity.description;
-    
+    ormEntity.description = domainEntity.description ?? '';
+
     return ormEntity;
   }
 }

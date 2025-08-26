@@ -4,7 +4,6 @@ import { ReportsService } from '../src/reports/application/use-cases/upload-repo
 import { JasperService } from '../src/shared/infrastructure/jasper/jasper.service';
 import { StorageService } from '../src/shared/infrastructure/storage/storage.service';
 import { ConfigService } from '@nestjs/config';
-import { UploadReportDto } from '../src/reports/application/dtos/upload-report.dto';
 import { Response } from 'express';
 
 describe('ReportsController (NestJS)', () => {
@@ -56,11 +55,10 @@ describe('ReportsController (NestJS)', () => {
 
   it('should upload a report', async () => {
     const file = { filename: 'f.jasper', originalname: 'f.jrxml' } as any;
-    const dto: UploadReportDto = { filename: 'f.jasper', originalname: 'f.jrxml' };
-    (reportsService.saveReportFile as jest.Mock).mockResolvedValue(dto);
-    const result = await controller.uploadReport(file, dto);
-    expect(result).toEqual(dto);
-    expect(reportsService.saveReportFile).toHaveBeenCalledWith({ ...dto, ...file });
+    (reportsService.saveReportFile as jest.Mock).mockResolvedValue(file);
+    const result = await controller.uploadReport(file);
+    expect(result).toEqual(file);
+    expect(reportsService.saveReportFile).toHaveBeenCalledWith(file);
   });
 
   it('should process a report and send PDF', async () => {
