@@ -41,6 +41,8 @@ RUN mkdir -p uploads reports
 ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 ENV JASPER_LIBS_PATH=/app/jasperreports-libs
+ENV JASPER_ENGINE_DIR=/app/jasper-engine
+ENV UPLOAD_DIR=/app/uploads
 
 # Copy source code
 COPY . .

@@ -5,15 +5,13 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:${PORT:-3000}"
       - "9229:9229"
+    env_file:
+      - .env
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV:-development}
       - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=password
-      - DATABASE_NAME=jasper_reports_db
       - JAVA_HOME=/opt/java/openjdk
     volumes:
       - ./src:/app/src
@@ -48,9 +46,11 @@ services:
 
   jasper:
     image: openjdk:17
+    env_file:
+      - .env
     volumes:
-      - ./uploads:/app/uploads
-      - ./jasper-engine:/app/jasper-engine
+      - ./uploads:/app/${UPLOAD_DIR:-uploads}
+      - ./jasper-engine:/app/${JASPER_ENGINE_DIR:-jasper-engine}
 
 volumes:
   postgres_data:

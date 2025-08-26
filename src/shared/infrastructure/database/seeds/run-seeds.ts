@@ -1,7 +1,11 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
+import { config } from 'dotenv';
 import { seedProducts } from './seed-products';
 import { ProductOrmEntity } from '../../../../products/infrastructure/entities/product.orm-entity';
+
+// Load environment variables from .env file
+config();
 
 const AppDataSource = new DataSource({
   type: 'postgres',

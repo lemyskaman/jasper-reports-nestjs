@@ -2,16 +2,19 @@ import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
+import { StorageService } from '../src/shared/infrastructure/storage/storage.service';
 import * as fs from 'fs';
 
 describe('Reports E2E', () => {
   let app: INestApplication;
+  let storageService: StorageService;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
     app = moduleFixture.createNestApplication();
+    storageService = app.get<StorageService>(StorageService);
     await app.init();
   });
 
@@ -31,7 +34,7 @@ describe('Reports E2E', () => {
   });
 
   it('should upload and process a report', async () => {
-    const samplePath = './uploads/sample.jrxml';
+    const samplePath = storageService.getUploadPath('sample.jrxml');
     if (!fs.existsSync(samplePath)) return;
     // Upload
     await request(app.getHttpServer())

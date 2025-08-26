@@ -6,8 +6,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS
-  app.enableCors();
+  // Enable CORS if configured
+  if (process.env.CORS_ENABLED === 'true') {
+    app.enableCors();
+  }
 
   // Global validation pipe
   app.useGlobalPipes(new ValidationPipe({
@@ -18,20 +20,23 @@ async function bootstrap() {
 
   // Swagger configuration
   const config = new DocumentBuilder()
-    .setTitle('Jasper Reports API')
-    .setDescription('API for managing and generating Jasper Reports')
-    .setVersion('1.0')
+    .setTitle(process.env.SWAGGER_TITLE || 'Jasper Reports API')
+    .setDescription(process.env.SWAGGER_DESCRIPTION || 'API for managing and generating Jasper Reports')
+    .setVersion(process.env.SWAGGER_VERSION || '1.0')
     .addTag('reports')
     .addTag('products')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup(process.env.SWAGGER_PATH || 'api', app, document);
 
   const port = process.env.PORT || 3000;
+  const swaggerPath = process.env.SWAGGER_PATH || 'api';
+  
   await app.listen(port);
+  
   console.log(`Application is running on: http://localhost:${port}`);
-  console.log(`Swagger documentation: http://localhost:${port}/api`);
+  console.log(`Swagger documentation: http://localhost:${port}/${swaggerPath}`);
 }
 
 bootstrap();
