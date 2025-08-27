@@ -2,154 +2,90 @@
 
 A modular, production-ready NestJS backend for uploading, storing, and processing JasperReports (`.jrxml` and `.jasper` files) and managing a products table in PostgreSQL. The project uses a clean hexagonal architecture, vertical slice modularity, and is fully Dockerized for easy local and production deployment.
 
-## Project Structure
+---
 
-```
-jasper-reports-nestjs/
-├── src/
-│   ├── app.module.ts           # Root module
-│   ├── main.ts                 # Application entry point
-│   ├── products/               # Products feature module
-│   │   ├── application/        # Controllers, DTOs, use-cases
-│   │   │   ├── controllers/    # API controllers
-│   │   │   ├── dtos/           # Data Transfer Objects
-│   │   │   └── use-cases/      # Application services
-│   │   ├── domain/             # Domain entities and ports
-│   │   │   ├── product.entity.ts          # Domain entity
-│   │   │   └── product.repository.port.ts # Repository interface
-│   │   └── infrastructure/     # ORM entities, repositories
-│   │       ├── entities/       # TypeORM entities
-│   │       └── repositories/   # Repository implementations
-│   ├── reports/                # Reports feature module
-│   │   ├── application/        # Controllers, DTOs, use-cases
-│   │   │   ├── controllers/    # API controllers
-│   │   │   ├── dtos/           # Data Transfer Objects
-│   │   │   └── use-cases/      # Application services
-│   │   ├── domain/             # Domain entities and ports
-│   │   │   ├── report.entity.ts          # Domain entity
-│   │   │   └── report.repository.port.ts # Repository interface
-│   │   └── infrastructure/     # ORM entities, repositories
-│   │       ├── entities/       # TypeORM entities
-│   │       └── repositories/   # Repository implementations
-│   └── shared/                 # Shared infrastructure (DB, Jasper, Storage)
-│       └── infrastructure/
-│           ├── database/       # TypeORM config, seeds
-│           ├── jasper/         # Jasper service stub
-│           └── storage/        # File storage service
-├── docs/                       # Documentation
-│   ├── coding-style-guide.md   # Coding standards
-│   ├── extended-llm-instructions.md # Additional instructions
-│   └── architecture-diagram.md # Architecture diagrams
-├── Dockerfile                  # Production Docker build
-├── Dockerfile.dev              # Development Docker build (with Jasper libs)
-├── docker-compose.yml          # Multi-service orchestration
-├── package.json                # NPM scripts and dependencies
-```
+## Quick Links
+- [Architecture](docs/architecture-diagram.md)
+- [Coding Style Guide](docs/coding-style-guide.md)
+- [API Reference](docs/api-reference.md)
+- [Testing Strategy](docs/testing.md)
+- [Jasper Integration](docs/jasper-integration.md)
+- [Docker Security](docs/docker-security.md)
+- [Postman Usage](docs/postman.md)
+- [Extended LLM Instructions](docs/extended-llm-instructions.md)
 
-## Hexagonal Architecture
+---
 
-This project follows the Hexagonal Architecture (Ports and Adapters) pattern, which provides several benefits:
+## Project Overview
+- **Products**: CRUD operations for products (name, price, etc.)
+- **Reports**: Upload, store, process JasperReports files, generate PDFs
+- **Architecture**: Vertical Slice Clean Architecture, Hexagonal (Ports & Adapters), SOLID/DRY
+- **Testing**: Unit, integration, and e2e tests, test-first approach
+- **Docker**: Secure, multi-stage builds, non-root user, dev/prod separation
+- **Postman**: Collection and environment for local API testing
 
-1. **Separation of Concerns**: The business logic is isolated from external concerns like databases and UI.
-2. **Testability**: Domain logic can be tested without infrastructure dependencies.
-3. **Flexibility**: Infrastructure implementations can be swapped without affecting the domain.
+---
 
-The architecture is organized into three main layers:
-
-### Domain Layer
-- Contains business entities and business logic
-- Defines interfaces (ports) that the domain requires from the outside world
-- Has no dependencies on other layers
-
-### Application Layer
-- Contains use cases that orchestrate the domain entities
-- Translates between the domain and the outside world using DTOs
-- Depends only on the domain layer
-
-### Infrastructure Layer
-- Contains implementations of the interfaces defined by the domain
-- Includes controllers, repositories, ORM entities, and external services
-- Adapts external concerns to the needs of the domain
-
-For detailed architecture diagrams, see [Architecture Diagrams](./docs/architecture-diagram.md).
-
-## Dependency Installation
-
-- Node.js 18+ and npm required for local development
-- Docker and Docker Compose required for containerized setup
-
-Install Node dependencies:
+## Quickstart
+### Local Development
 ```sh
 npm install
+npm run start:dev
 ```
-
-## Project Installation & Usage
-
-### Local Development
-1. Install dependencies:
-   ```sh
-   npm install
-   ```
-2. Start the app:
-   ```sh
-   npm run start:dev
-   ```
 
 ### Docker Development
-1. Build and start the containers:
-   ```sh
-   docker-compose up -d
-   ```
-2. The API will be available at http://localhost:3000
+```sh
+docker-compose up -d
+```
+API available at [http://localhost:3000](http://localhost:3000)
 
-### Debugging with VS Code
+### Testing
+```sh
+npm run test      # Unit/Integration
+npm run test:e2e  # End-to-End
+```
 
-1. Make sure you have the VS Code setup:
-   - The project includes a `.vscode/launch.json` configuration file
-   - This enables debugging both in Docker and locally
+---
 
-2. To debug the application running in Docker:
-   - Start the application using Docker Compose:
-     ```sh
-     docker-compose up -d
-     ```
-   - In VS Code, go to the Run and Debug panel (Ctrl+Shift+D)
-   - Select "Debug NestJS in Docker" from the dropdown
-   - Press F5 or click the green play button
-   - VS Code will attach to the Node.js process running in the Docker container
-   - You can now set breakpoints in your code and debug as usual
+## Architecture Summary
+This project uses **Vertical Slice Clean Architecture** and **Hexagonal (Ports & Adapters)**. See [Architecture Diagram](docs/architecture-diagram.md) for details and embedded diagrams.
 
-3. To debug locally (without Docker):
-   - Select "Debug NestJS (Local)" from the dropdown
-   - Press F5 or click the green play button
-   - This will start the application in debug mode locally
+---
 
-## API Endpoints
+## Coding Standards
+All code follows the [Coding Style Guide](docs/coding-style-guide.md), enforcing SOLID, DRY, and NestJS best practices.
 
-### Products
-- `GET /products` - List all products
-- `GET /products/:id` - Get a product by ID
-- `POST /products` - Create a new product
-- `DELETE /products/:id` - Delete a product
+---
 
-### Reports
-- `GET /reports` - List all reports
-- `GET /reports/:id` - Get a report by ID
-- `POST /reports/upload` - Upload a report file
-- `POST /reports/process/:filename` - Process a report and generate PDF
+## API Reference
+All endpoints, request/response schemas, and error codes are documented in [API Reference](docs/api-reference.md).
+
+---
 
 ## Testing
+Test-first strategy, coverage, and instructions are in [Testing Strategy](docs/testing.md).
 
-Run unit tests:
-```sh
-npm run test
-```
+---
 
-Run e2e tests:
-```sh
-npm run test:e2e
-```
+## JasperReports Integration
+JasperReports flow, CLI usage, and PDF generation are explained in [Jasper Integration](docs/jasper-integration.md).
+
+---
+
+## Docker Security
+Production images use a non-root user and follow best practices. See [Docker Security](docs/docker-security.md).
+
+---
+
+## Postman Usage
+Import the provided collection and environment for local API testing. See [Postman Usage](docs/postman.md).
+
+---
+
+## Contributor & LLM Instructions
+See [Extended LLM Instructions](docs/extended-llm-instructions.md) for contributor and automation guidelines.
+
+---
 
 ## License
-
 MIT

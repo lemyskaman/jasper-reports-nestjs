@@ -1,4 +1,3 @@
-
 # --- Unified build: openjdk + Node.js ---
 FROM openjdk:17-slim as build
 WORKDIR /app
@@ -33,6 +32,9 @@ RUN apt-get update && apt-get install -y curl libfreetype6 fontconfig fonts-deja
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     node -v && npm -v
+# Add non-root user for app
+RUN useradd -m -d /app -s /bin/bash appuser && \
+    chown -R appuser:appuser /app
 # Copy app and Jasper CLI from build
 COPY --from=build /app /app
 # Set Java environment
@@ -40,5 +42,7 @@ ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 # Expose port
 EXPOSE 3000
+# Switch to non-root user
+USER appuser
 # Start command
 CMD ["npm", "run", "start:prod"]
